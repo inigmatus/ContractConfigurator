@@ -1,7 +1,16 @@
+Contract Configurator 1.8.2
+- Added Vessel.VesselName() method.
+- Added support for title in KerbalDeaths parameter.
+_ Fixed issue with FacilityRequirement always thinking the player's facilities were maxed out.
+
 Contract Configurator 1.8.1
+- Added new Not parameter.
+- Can now specify heading in SpawnKerbal.
 - Fixed issue with index attribute not being recognized in HasPassengers (thanks inigmatus).
 - Fixed issue with speed in KSP never being zero for ReachState (thanks inigmatus).
 - Fixed exception in RecoverVessel when recovering via the VAB when another vessel is on the launchpad.
+- Fixed issue with timers getting reset in VAB/SPH (thanks chrisl).
+- Removed long-ago deprecated CC_SCANsat.dll (this does not remove SCANsat support).
 
 Contract Configurator 1.8.0
 - Support for KSP 1.0.5
