@@ -30,6 +30,9 @@ namespace ContractConfigurator
 
         public static System.Random random = new System.Random();
 
+        /// <summary>
+        /// Static method (used by other mods via reflection) to get the contract type name.
+        /// </summary>
         public static string contractTypeName(Contract c)
         {
             if (c == null || c.GetType() != typeof(ConfiguredContract))
@@ -39,6 +42,33 @@ namespace ContractConfigurator
 
             ConfiguredContract cc = (ConfiguredContract)c;
             return cc.contractType != null ? cc.contractType.name : "";
+        }
+
+        /// <summary>
+        /// Static method (used by other mods via reflection) to get the group name.
+        /// </summary>
+        public static string contractGroupName(Contract c)
+        {
+            if (c == null || c.GetType() != typeof(ConfiguredContract))
+            {
+                return "";
+            }
+            ConfiguredContract cc = (ConfiguredContract)c;
+            if (cc.contractType == null)
+            {
+                return "";
+            }
+
+            ContractGroup group = cc.contractType.group;
+            if (group == null)
+            {
+                return "";
+            }
+            while (group.parent != null)
+            {
+                group = group.parent;
+            }
+            return group.name;
         }
 
         protected string title;
@@ -425,7 +455,7 @@ namespace ContractConfigurator
             // ContractType already chosen, check if still meets requirements.
             if (contractType != null)
             {
-                bool meets = contractType.MeetRequirements(this);
+                bool meets = contractType.MeetRequirements(this, contractType);
                 if (ContractState == State.Active && !meets)
                 {
                     LoggingUtil.LogWarning(this, "Removed contract '" + title + "', as it no longer meets the requirements.");

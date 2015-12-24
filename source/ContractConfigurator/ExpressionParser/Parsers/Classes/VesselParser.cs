@@ -22,7 +22,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterParserType(typeof(Vessel), typeof(VesselParser));
         }
 
-        internal static void RegisterMethods()
+        public static void RegisterMethods()
         {
             RegisterMethod(new Method<Vessel, bool>("IsLanded", v => v != null && v.Landed, false));
             RegisterMethod(new Method<Vessel, bool>("IsSplashed", v => v != null && v.Splashed, false));
@@ -52,6 +52,11 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<Vessel, double>("SmallestDimension", GetSmallestDimension, false));
             RegisterMethod(new Method<Vessel, double>("LargestDimension", GetLargestDimension, false));
             RegisterMethod(new Method<Vessel, Location>("Location", v => v == null ? null : new Location(v.mainBody, v.latitude, v.longitude), false));
+
+            RegisterMethod(new Method<Vessel, double>("OrbitApoapsis", GetApA, false));
+            RegisterMethod(new Method<Vessel, double>("OrbitPeriapsis", GetPeA, false));
+            RegisterMethod(new Method<Vessel, double>("OrbitInclination", GetInclination, false));
+            RegisterMethod(new Method<Vessel, double>("OrbitEccentricity", GetEccentricity, false));
 
             RegisterGlobalFunction(new Function<List<Vessel>>("AllVessels", () => FlightGlobals.Vessels.ToList(), false));
             RegisterGlobalFunction(new Function<Vessel, Vessel>("Vessel", v => v));
@@ -175,7 +180,51 @@ namespace ContractConfigurator.ExpressionParser
             return Math.Min(Math.Min(GetXDimension(v), GetYDimension(v)), GetZDimension(v));
         }
 
-        internal override U ConvertType<U>(Vessel value)
+        static double GetApA(Vessel vessel)
+        {
+            if (vessel == null)
+            {
+                return 0.0;
+            }
+
+            Orbit orbit = vessel.loaded ? vessel.orbit : vessel.protoVessel.orbitSnapShot.Load();
+            return orbit.ApA;
+        }
+
+        static double GetPeA(Vessel vessel)
+        {
+            if (vessel == null)
+            {
+                return 0.0;
+            }
+
+            Orbit orbit = vessel.loaded ? vessel.orbit : vessel.protoVessel.orbitSnapShot.Load();
+            return orbit.PeA;
+        }
+
+        static double GetInclination(Vessel vessel)
+        {
+            if (vessel == null)
+            {
+                return 0.0;
+            }
+
+            Orbit orbit = vessel.loaded ? vessel.orbit : vessel.protoVessel.orbitSnapShot.Load();
+            return orbit.inclination;
+        }
+
+        static double GetEccentricity(Vessel vessel)
+        {
+            if (vessel == null)
+            {
+                return 0.0;
+            }
+
+            Orbit orbit = vessel.loaded ? vessel.orbit : vessel.protoVessel.orbitSnapShot.Load();
+            return orbit.eccentricity;
+        }
+
+        public override U ConvertType<U>(Vessel value)
         {
             if (typeof(U) == typeof(string))
             {
@@ -201,7 +250,7 @@ namespace ContractConfigurator.ExpressionParser
             return base.ConvertType<U>(value);
         }
 
-        internal override Vessel ParseIdentifier(Token token)
+        public override Vessel ParseIdentifier(Token token)
         {
             // Try to parse more, as vessel names can have spaces
             Match m = Regex.Match(expression, @"^((?>\s*[\w\d\-\.]+)+).*");

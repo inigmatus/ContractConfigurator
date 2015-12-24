@@ -31,6 +31,20 @@ namespace ContractConfigurator
             }
         }
 
+        /// <summary>
+        /// Static method (used by other mods via reflection) to get the contract group display name.
+        /// </summary>
+        public static string GroupDisplayName(string groupName)
+        {
+            if (string.IsNullOrEmpty(groupName))
+            {
+                return "";
+            }
+
+            ContractGroup group = contractGroups.ContainsKey(groupName) ? contractGroups[groupName] : null;
+            return group == null ? "" : group.displayName;
+        }
+
         // Group attributes
         public string name;
         public string displayName;
@@ -47,7 +61,7 @@ namespace ContractConfigurator
         public DataNode dataNode { get; private set; }
 
         public Dictionary<string, bool> dataValues = new Dictionary<string, bool>();
-        public Dictionary<string, bool> uniqueValues = new Dictionary<string, bool>();
+        public Dictionary<string, DataNode.UniquenessCheck> uniquenessChecks = new Dictionary<string, DataNode.UniquenessCheck>();
 
         public ContractGroup parent = null;
 
@@ -96,7 +110,7 @@ namespace ContractConfigurator
                 }
 
                 // Load DATA nodes
-                valid &= dataNode.ParseDataNodes(configNode, this, dataValues, uniqueValues);
+                valid &= dataNode.ParseDataNodes(configNode, this, dataValues, uniquenessChecks);
 
                 // Do the deferred loads
                 valid &= ConfigNodeUtil.ExecuteDeferredLoads();
